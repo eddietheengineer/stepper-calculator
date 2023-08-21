@@ -1,18 +1,42 @@
-import formulas as fp
+from formulas import calctorque
 import numpy as np
-from dataclasses import dataclass
+import matplotlib.pyplot as plt
+from input import StepperData, PrinterData, importdatabase
 
 
-@dataclass
-class StepperData():
-    manufacturer: str = ''
-    modelnumber: str = ''
-    nema: int = 0
-    length: float = 0
-    stepangle: float = 0
-    ratedcurrent_amp: float = 0
-    ratedtorque_ncm: float = 0
-    inductance_mh: float = 0
-    resistance_ohm: float = 0
-    rotorinertia_gcm2: float = 0
-    datasheet: str = ''
+def generateaxis(lowspeed: int, highspeed: int):
+    speedaxis = range(lowspeed, highspeed)
+    return speedaxis
+
+
+def calculatetorquearray(stepper: StepperData, printer: PrinterData, speedaxis):
+    torque = []
+    for _, mms in enumerate(speedaxis):
+        torque.append(calctorque(stepper, printer, mms))
+    plt.plot(speedaxis, torque,
+             label=f'{stepper.manufacturer} {stepper.modelnumber}')
+
+
+def plotall():
+    speed = generateaxis(0, 1000)
+    motordatabase = importdatabase()
+
+    plt.rcParams['figure.figsize'] = [8, 4.5]
+    plt.margins(0)
+    plt.grid(visible=True)
+
+    for _, stepper in enumerate(motordatabase):
+        calculatetorquearray(stepper, printertest, speed)
+
+    plt.legend(fontsize=4)
+    plt.title('Torque vs Speed')
+    plt.xlabel('Speed (mm/s)')
+    plt.ylabel('Torque (N-cm)')
+    plt.ylim(bottom=0, top=100)
+    plt.savefig('Testimage.png', dpi=240)
+    plt.clf()
+    plt.close()
+
+
+printertest = PrinterData()
+plotall()

@@ -1,8 +1,28 @@
-from main import StepperData
-from dataclass_csv import DataclassWriter
+from dataclass_csv import DataclassWriter, DataclassReader
 import os
+from dataclasses import dataclass
 
 filename = 'motordatabase.csv'
+
+
+@dataclass
+class StepperData():
+    manufacturer: str = 'OMC'
+    modelnumber: str = '17HS19-2004S1'
+    nema: int = 17
+    length: float = 48
+    stepangle: float = 1.8
+    ratedcurrent_amp: float = 2
+    ratedtorque_ncm: float = 59
+    inductance_mh: float = 3
+    resistance_ohm: float = 1.4
+    rotorinertia_gcm2: float = 82
+
+
+class PrinterData():
+    supplyvoltage: float = 24
+    rotationdistance: float = 40
+    targetcurrent_amp: float = 2.0
 
 
 def importmotor():
@@ -18,18 +38,25 @@ def importmotor():
     new.inductance_mh = float(input('   Inductance (mH): ') or 3)
     new.resistance_ohm = float(input('   Phase Resistance (Ohm): ') or 1.4)
     new.rotorinertia_gcm2 = float(input('   Rotor Inertia (g-cm^2): ') or 82)
-    new.datasheet = input(
-        '   Datasheet URL: ') or 'https://www.omc-stepperonline.com/download/17HS19-2004S1.pdf'
     writedata(new)
 
 
 def writedata(newdata: StepperData):
     if os.path.isfile(filename):
-        with open(filename, "a") as f:
+        with open(filename, "a", encoding='utf-8') as f:
             w = DataclassWriter(f, [newdata], StepperData)
             w.write(skip_header=True)
 
     else:
-        with open(filename, "w") as f:
+        with open(filename, "w", encoding='utf-8') as f:
             w = DataclassWriter(f, [newdata], StepperData)
             w.write(skip_header=False)
+
+
+def importdatabase():
+    with open(filename, encoding='utf-8') as data_csv:
+        reader = DataclassReader(data_csv, StepperData)
+        motordatabase = []
+        for row in reader:
+            motordatabase.append(row)
+    return motordatabase

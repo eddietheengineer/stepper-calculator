@@ -1,4 +1,5 @@
 import numpy as np
+from input import StepperData, PrinterData
 
 
 def f_coil(stepper_rps: float, stepper_degrees: float, steps_cycle=4):
@@ -87,7 +88,7 @@ def v_gen(rps, ratedcurrent_A, ratedtorque_Ncm):
     return v_gen
 
 
-def i_actual(v_supply: float, v_gen: float, z_coil: float, i_target: float):
+def i_actual(v_supply: float, v_gen: float, z_coil: float, i_rated: float):
     """ Return the actual current going through the windings
     Parameters:
     ----------------
@@ -107,7 +108,7 @@ def i_actual(v_supply: float, v_gen: float, z_coil: float, i_target: float):
     """
     v_available = v_supply - v_gen
     i_available = v_available/z_coil
-    i_actual = min(i_available, i_target)
+    i_actual = min(i_available, i_rated)
     return i_actual
 
 
@@ -130,3 +131,16 @@ def torque(i_rated: float, i_actual: float, ratedtorque_Ncm: float):
     torque_ratio = i_actual/i_rated
     torque_1coil = torque_ratio * ratedtorque_Ncm / np.sqrt(2)
     return torque_1coil
+
+
+def calctorque(stepper: StepperData, printer: PrinterData, speed):
+    rps = speed / printer.rotationdistance
+    fcoil = f_coil(rps, stepper.stepangle)
+    xcoil = x_coil(stepper.inductance_mh, fcoil)
+    zcoil = z_coil(xcoil, stepper.resistance_ohm)
+    vgen = v_gen(rps, stepper.ratedcurrent_amp, stepper.ratedtorque_ncm)
+    iactual = i_actual(printer.supplyvoltage, vgen,
+                       zcoil, stepper.ratedcurrent_amp)
+    torque_ncm = torque(stepper.ratedcurrent_amp,
+                        iactual, stepper.ratedtorque_ncm)
+    return torque_ncm
