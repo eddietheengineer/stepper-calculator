@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def f_coil(stepper_rps, stepper_degrees, steps_cycle=4):
+def f_coil(stepper_rps: float, stepper_degrees: float, steps_cycle=4):
     """ Return the electrical frequency for the stepper motor
 
     Parameters:
@@ -22,7 +22,7 @@ def f_coil(stepper_rps, stepper_degrees, steps_cycle=4):
     return f_coil
 
 
-def x_coil(stepper_inductance, coil_frequency):
+def x_coil(stepper_inductance: float, coil_frequency: float):
     """ Return the inductive reactance X_L of a stepper motor
     https://www.electronics-tutorials.ws/accircuits/ac-inductance.html
 
@@ -42,7 +42,7 @@ def x_coil(stepper_inductance, coil_frequency):
     return x_coil
 
 
-def z_coil(XL, R):
+def z_coil(XL: float, R: float):
     """ Return the total Z impedance of the coil
     https://www.allaboutcircuits.com/textbook/alternating-current/chpt-3/ac-resistor-circuits-inductive/
 
@@ -87,7 +87,7 @@ def v_gen(rps, ratedcurrent_A, ratedtorque_Ncm):
     return v_gen
 
 
-def i_actual(v_supply, v_gen, z_coil, i_target):
+def i_actual(v_supply: float, v_gen: float, z_coil: float, i_target: float):
     """ Return the actual current going through the windings
     Parameters:
     ----------------
@@ -111,7 +111,7 @@ def i_actual(v_supply, v_gen, z_coil, i_target):
     return i_actual
 
 
-def torque(i_rated, i_actual, ratedtorque_Ncm):
+def torque(i_rated: float, i_actual: float, ratedtorque_Ncm: float):
     """ Return the actual torque output of the stepper motor
     Parameters:
     ----------------
